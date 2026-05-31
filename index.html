@@ -58,36 +58,52 @@ label{
     margin-bottom: 10px;
 }
 
-#viewer{
-    width:90%;
-    max-width:1000px;
-    background:#050505;
-    border:2px solid #222;
-    padding:20px;
-    overflow:auto;
+input[type="range"]{
+    width: 100%;
 }
 
 pre{
-    margin:0;
-    font-size:8px;
-    line-height:5px;
-    white-space:pre;
+    font-size: 8px;
+    line-height: 5px;
 }
 
 video,canvas{
-    display:none;
+    display: none;
+}
+
+.mirror{
+    transform: scaleX(-1);
 }
 </style>
 </head>
 
 <body>
 
-<h1>ASCII CAMERA V1</h1>
+<h1>ASCII CAMERA V2</h1>
 
-<button id="start">START CAMERA</button>
+<div class="layout">
 
-<div id="viewer">
-<pre id="ascii"></pre>
+<div class="panel">
+    
+<button id="toggle">START</button>  
+
+<label>Resolution</label>
+<input type="range" id="width" min="60" max="200" value="120">
+
+<label>Brightness</label>
+<input type="range" id="brightness" min="-100" max="100" value="0">
+
+<label>
+<input type="checkbox" id="mirror" checked>
+Mirror   
+</label>
+
+</div>
+
+<div class="viewer">
+<pre id="ascii"></pre>    
+</div>
+
 </div>
 
 <video id="video" autoplay playsinline></video>
