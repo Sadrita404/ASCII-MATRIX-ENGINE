@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII CAMERA V1</title>
+
+<style>
+    body{
+        margin: 0;
+        background: #0a0a0a;
+        color: #00ff88;
+        font-family: monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    h1{
+        letter-spacing: 4px;
+        margin-bottom: 20px;
+    }
+
+    button{
+        background: #00ff88;
+        color: #000;
+        border: none;
+        padding: 12px 20px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+
+    #viewer{
+        width: 90%;
+        max-width: 1000px;
+        background: #050505;
+        border: 2px solid #222;
+        padding: 20px;
+        overflow: auto;
+    }
+
+    pre{
+        margin: 0;
+        font-size: 8px;
+        line-height: 5px;
+        white-space: pre;
+    }
+
+    video,canvas{
+        display: none;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>ASCII CAMERA V1</h1>    
+
+<button id="start">START CAMERA</button>
+
+<div id="viewer">
+    <pre id="ascii"></pre>
+</div>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas"></canvas>
+
+<script>
+    const video=document.getElementById('video');
+    const canvas=document.getElementById('canvas');
+    const ctx=canvas.getContext('2d');
+    const ascii=document.getElementById('ascii');
+
+    const chars='@#S%?*+;:,.';
+
+    document.getElementById('start').onclick=async()=>{
+
+        const stream=await navigator.mediaDevices.getUserMedia({
+            video:true
+        });
+
+        video.srcObject=stream;
+        
+        video.onloadedmetadata=()=>{
+            video.play();
+            render();
+        };
+    }
+</script>
+</div>
+</body>
+</head>    
+</html>
