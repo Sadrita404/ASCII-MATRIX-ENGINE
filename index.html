@@ -3,23 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ASCII CAMERA V1</title>
+<title>ASCII CAMERA V2</title>
 
 <style>
 body{
     margin:0;
     background:#0a0a0a;
-    color:#00ff88;
+    color:#fff;
     font-family:monospace;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
     padding:20px;
 }
 
 h1{
+    text-align: center;
     letter-spacing:4px;
     margin-bottom:20px;
+}
+
+.layout{
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    height: 90vh;
+}
+
+.panel{
+    background:#161b22;
+    border: 2px solid #222;
+    padding: 20px;
+}
+
+.viewer{
+    background: #050505;
+    border: 2px solid #222;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 button{
@@ -30,6 +50,12 @@ button{
     font-weight:bold;
     cursor:pointer;
     margin-bottom:20px;
+}
+
+label{
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 #viewer{
