@@ -1,132 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII CAMERA V1</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII CAMERA V1</title>
 
 <style>
-    body{
-        margin: 0;
-        background: #0a0a0a;
-        color: #00ff88;
-        font-family: monospace;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 20px;
-    }
+body{
+    margin:0;
+    background:#0a0a0a;
+    color:#00ff88;
+    font-family:monospace;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px;
+}
 
-    h1{
-        letter-spacing: 4px;
-        margin-bottom: 20px;
-    }
+h1{
+    letter-spacing:4px;
+    margin-bottom:20px;
+}
 
-    button{
-        background: #00ff88;
-        color: #000;
-        border: none;
-        padding: 12px 20px;
-        font-weight: bold;
-        cursor: pointer;
-        margin-bottom: 20px;
-    }
+button{
+    background:#00ff88;
+    color:#000;
+    border:none;
+    padding:12px 20px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-bottom:20px;
+}
 
-    #viewer{
-        width: 90%;
-        max-width: 1000px;
-        background: #050505;
-        border: 2px solid #222;
-        padding: 20px;
-        overflow: auto;
-    }
+#viewer{
+    width:90%;
+    max-width:1000px;
+    background:#050505;
+    border:2px solid #222;
+    padding:20px;
+    overflow:auto;
+}
 
-    pre{
-        margin: 0;
-        font-size: 8px;
-        line-height: 5px;
-        white-space: pre;
-    }
+pre{
+    margin:0;
+    font-size:8px;
+    line-height:5px;
+    white-space:pre;
+}
 
-    video,canvas{
-        display: none;
-    }
+video,canvas{
+    display:none;
+}
 </style>
 </head>
 
 <body>
 
-<h1>ASCII CAMERA V1</h1>    
+<h1>ASCII CAMERA V1</h1>
 
 <button id="start">START CAMERA</button>
 
 <div id="viewer">
-    <pre id="ascii"></pre>
+<pre id="ascii"></pre>
 </div>
 
 <video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 
 <script>
-    const video=document.getElementById('video');
-    const canvas=document.getElementById('canvas');
-    const ctx=canvas.getContext('2d');
-    const ascii=document.getElementById('ascii');
+const video=document.getElementById('video');
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const ascii=document.getElementById('ascii');
 
-    const chars='@#S%?*+;:,.';
+const chars='@#S%?*+;:,. ';
 
-    document.getElementById('start').onclick=async()=>{
+document.getElementById('start').onclick=async()=>{
 
-        const stream=await navigator.mediaDevices.getUserMedia({
-            video:true
-        });
+const stream=await navigator.mediaDevices.getUserMedia({
+video:true
+});
 
-        video.srcObject=stream;
+video.srcObject=stream;
 
-        video.onloadedmetadata=()=>{
-            video.play();
-            render();
-        };
+video.onloadedmetadata=()=>{
+video.play();
+render();
+};
 
-    };
+};
 
-    function render(){
+function render(){
 
-        canvas.width=120;
-        canvas.height=70;
+canvas.width=120;
+canvas.height=70;
 
-        ctx.drawImage(video,0,0,120,70);
+ctx.drawImage(video,0,0,120,70);
 
-        const data=ctx.getImageData(0,0,120,70).data;
+const data=ctx.getImageData(0,0,120,70).data;
 
-        let text='';
+let text='';
 
-        for(let y=0;y<70;7++){
+for(let y=0;y<70;y++){
 
-            for(let x=0;x<120;x++){
+for(let x=0;x<120;x++){
 
-                const i=(y*120+x)*4;
+const i=(y*120+x)*4;
 
-                const r=data[i];
-                const g=data[i+1];
-                const b=data[i+2];
+const r=data[i];
+const g=data[i+1];
+const b=data[i+2];
 
-                const lum=(r+g+b)/3;
+const lum=(r+g+b)/3;
 
-                const index=Math.floor((lum/255)*(chars.length-1));
+const index=Math.floor((lum/255)*(chars.length-1));
 
-                text+=chars[index];
+text+=chars[index];
 
-            }
+}
 
-            text+='\n';
-        }
+text+='\n';
+}
 
-        ascii.textContent=text;
+ascii.textContent=text;
 
-        requestAnimationFrame(render);
+requestAnimationFrame(render);
 
-    }
+}
 </script>
 
 </body>
