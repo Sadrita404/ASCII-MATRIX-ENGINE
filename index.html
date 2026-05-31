@@ -82,14 +82,52 @@
         });
 
         video.srcObject=stream;
-        
+
         video.onloadedmetadata=()=>{
             video.play();
             render();
         };
+
+    };
+
+    function render(){
+
+        canvas.width=120;
+        canvas.height=70;
+
+        ctx.drawImage(video,0,0,120,70);
+
+        const data=ctx.getImageData(0,0,120,70).data;
+
+        let text='';
+
+        for(let y=0;y<70;7++){
+
+            for(let x=0;x<120;x++){
+
+                const i=(y*120+x)*4;
+
+                const r=data[i];
+                const g=data[i+1];
+                const b=data[i+2];
+
+                const lum=(r+g+b)/3;
+
+                const index=Math.floor((lum/255)*(chars.length-1));
+
+                text+=chars[index];
+
+            }
+
+            text+='\n';
+        }
+
+        ascii.textContent=text;
+
+        requestAnimationFrame(render);
+
     }
 </script>
-</div>
+
 </body>
-</head>    
 </html>
