@@ -8,71 +8,71 @@
 <style>
 body{
     margin:0;
-    background:#0a0a0a;
+    background:#0d1117;
     color:#fff;
     font-family:monospace;
     padding:20px;
 }
 
 h1{
-    text-align: center;
+    text-align:center;
     letter-spacing:4px;
-    margin-bottom:20px;
+    color:#00ff88;
 }
 
 .layout{
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 20px;
-    height: 90vh;
+    display:grid;
+    grid-template-columns:300px 1fr;
+    gap:20px;
+    height:90vh;
 }
 
 .panel{
     background:#161b22;
-    border: 2px solid #222;
-    padding: 20px;
+    border:2px solid #222;
+    padding:20px;
 }
 
 .viewer{
-    background: #050505;
-    border: 2px solid #222;
-    overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background:#050505;
+    border:2px solid #222;
+    overflow:auto;
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
 button{
+    width:100%;
+    padding:14px;
     background:#00ff88;
-    color:#000;
     border:none;
-    padding:12px 20px;
     font-weight:bold;
     cursor:pointer;
     margin-bottom:20px;
 }
 
 label{
-    display: block;
-    margin-top: 20px;
-    margin-bottom: 10px;
+    display:block;
+    margin-top:20px;
+    margin-bottom:10px;
 }
 
 input[type="range"]{
-    width: 100%;
+    width:100%;
 }
 
 pre{
-    font-size: 8px;
-    line-height: 5px;
+    font-size:8px;
+    line-height:5px;
 }
 
 video,canvas{
-    display: none;
+    display:none;
 }
 
 .mirror{
-    transform: scaleX(-1);
+    transform:scaleX(-1);
 }
 </style>
 </head>
@@ -84,8 +84,8 @@ video,canvas{
 <div class="layout">
 
 <div class="panel">
-    
-<button id="toggle">START</button>  
+
+<button id="toggle">START</button>
 
 <label>Resolution</label>
 <input type="range" id="width" min="60" max="200" value="120">
@@ -95,13 +95,13 @@ video,canvas{
 
 <label>
 <input type="checkbox" id="mirror" checked>
-Mirror   
+Mirror
 </label>
 
 </div>
 
 <div class="viewer">
-<pre id="ascii"></pre>    
+<pre id="ascii"></pre>
 </div>
 
 </div>
@@ -134,8 +134,8 @@ streaming?stop():start();
 async function start(){
 
 stream=await navigator.mediaDevices.getUserMedia({
-video:true    
-});    
+video:true
+});
 
 video.srcObject=stream;
 
@@ -149,7 +149,7 @@ render();
 }
 
 function stop(){
-   
+
 stream.getTracks().forEach(t=>t.stop());
 
 streaming=false;
@@ -177,15 +177,15 @@ const data=ctx.getImageData(0,0,cols,rows).data;
 
 let text='';
 
-for(let y=0;y<70;y++){
+for(let y=0;y<rows;y++){
 
-for(let x=0;x<120;x++){
+for(let x=0;x<cols;x++){
 
-const i=(y*120+x)*4;
+const i=(y*cols+x)*4;
 
-const r=data[i];
-const g=data[i+1];
-const b=data[i+2];
+let r=data[i];
+let g=data[i+1];
+let b=data[i+2];
 
 const bright=parseInt(brightnessSlider.value);
 
