@@ -115,31 +115,65 @@ const canvas=document.getElementById('canvas');
 const ctx=canvas.getContext('2d');
 const ascii=document.getElementById('ascii');
 
+const toggle=document.getElementById('toggle');
+const widthSlider=document.getElementById('width');
+const brightnessSlider=document.getElementById('brightness');
+const mirror=document.getElementById('mirror');
+
 const chars='@#S%?*+;:,. ';
 
-document.getElementById('start').onclick=async()=>{
+let streaming=false;
+let stream=null;
 
-const stream=await navigator.mediaDevices.getUserMedia({
-video:true
-});
+toggle.onclick=()=>{
+
+streaming?stop():start();
+
+};
+
+async function start(){
+
+stream=await navigator.mediaDevices.getUserMedia({
+video:true    
+});    
 
 video.srcObject=stream;
 
 video.onloadedmetadata=()=>{
 video.play();
+streaming=true;
+toggle.textContent='STOP';
 render();
 };
 
-};
+}
+
+function stop(){
+   
+stream.getTracks().forEach(t=>t.stop());
+
+streaming=false;
+
+toggle.textContent='START';
+
+ascii.textContent='';
+
+}
 
 function render(){
 
-canvas.width=120;
-canvas.height=70;
+if(!streaming)return;
 
-ctx.drawImage(video,0,0,120,70);
+const cols=parseInt(widthSlider.value);
 
-const data=ctx.getImageData(0,0,120,70).data;
+const rows=Math.floor(cols*0.55);
+
+canvas.width=cols;
+canvas.height=rows;
+
+ctx.drawImage(video,0,0,cols,rows);
+
+const data=ctx.getImageData(0,0,cols,rows).data;
 
 let text='';
 
@@ -153,6 +187,12 @@ const r=data[i];
 const g=data[i+1];
 const b=data[i+2];
 
+const bright=parseInt(brightnessSlider.value);
+
+r+=bright;
+g+=bright;
+b+=bright;
+
 const lum=(r+g+b)/3;
 
 const index=Math.floor((lum/255)*(chars.length-1));
@@ -162,9 +202,12 @@ text+=chars[index];
 }
 
 text+='\n';
+
 }
 
 ascii.textContent=text;
+
+ascii.classList.toggle('mirror',mirror.checked);
 
 requestAnimationFrame(render);
 
