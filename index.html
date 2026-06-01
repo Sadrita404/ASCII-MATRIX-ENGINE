@@ -644,10 +644,78 @@
                                 <span class="slider-name">Luminance Gain</span>
                                 <span class="slider-val" id="val-bright">0</span>
                             </div>
-                            <
+                            <input type="range" id="control-bright" min="-100" max="100" step="1" value="0">
+                        </div>
+                        <div class="slider-row" style="margin-bottom: 0;">
+                            <div class="slider-header">
+                                <span class="slider-name">Contrast</span>
+                                <span class="slider-val" id="val-contrast">0</span>
+                            </div>
+                            <input type="range" id="control-contrast" min="-100" max="100" step="1" value="0">
                         </div>
                     </div>
-
                 </div>
+
+                <div class="panel-block">
+                    <div class="panel-label">GLYPH MATRIX</div>
+                    <div class="panel-inner">
+                        <div class="field-group">
+                            <span class="field-label">Character</span>
+                            <div class="select-wrap">
+                                <select id="control-charset">
+                                    <option value="detailed">DETAILED - $@B%8&WM#*oahk..</option>
+                                    <option value="standard">STANDARD - </option>
+                                    <option value="blocks">BLOCKS - </option>
+                                    <option value="binary">BINARY - </option>
+                                    <option value="braille">BRAILLE - </option>
+                                    <option value="custom">CUSTOM SET </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="field-group" id="custom-charset-wrapper" style="display: none;">
+                            <span class="field-label">Custom Characters</span>
+                            <input type="text" id="control-custom-char" value="XYZabc123. ">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-block">
+                    <div class="panel-label">KERNEL FX</div>
+                    <div class="panel-inner">
+                        <button class="toggle-btn" id="togbtn-color">
+                            <span>True-Color Overlay</span>
+                            <div class="tog-indicator"></div>
+                            <input type="checkbox" id="opt-color">
+                        </button>
+                        <button class="toggle-btn on" id="togbtn-mirror">
+                            <span>Mirror Transpose</span>
+                            <div class="tog-indicator"></div>
+                            <input type="checkbox" id="opt-mirror" checked>
+                        </button>
+                        <button class="toggle-btn" id="togbtn-invert">
+                            <span>Invert Engine</span>
+                            <div class="tog-indicator"></div>
+                            <input type="checkbox" id="opt-invert">
+                        </button>
+                        <button class="toggle-btn" id="togbtn-edge">
+                            <span>Sobel Edge Detect</span>
+                            <div class="tog-indicator"></div>
+                            <input type="checkbox" id="opt-edge">
+                        </button>
+                        <div class="divider"></div>
+                        <span class="cam-label">Camera Facing</span>
+                        <div class="cam-group">
+                            <label class="cam-btn active" id="lbl-facing-user">
+                                <input type="radio" name="cam-facing-user" value="user" checked>
+                                🔹 FRONT
+                            </label>
+                            <label class="cam-btn" id="lbl-facing-env">
+                                <input type="radio" name="cam-facing" value="environment">
+                                🔘 REAR
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
         </div>
