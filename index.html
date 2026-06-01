@@ -423,6 +423,78 @@
             gap: 6px;
         }
 
+        .btn-export {
+            background: var(--raised);
+            border: 1px solid var(--rim);
+            border-bottom: 3px solid var(--rim);
+            border-right: 2px solid #000;
+            color: var(--white);
+            padding: 10px 8px;
+            font-family: 'Share Tech Mono' , monospace;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-align: center;
+            transition: all 0.05s;
+            position: relative;
+            top: 0;
+            line-height: 1.4;
+        }
+
+        .btn-export:active {
+            top: 2px;
+            border-bottom: 1px solid #000;
+        }
+
+        .btn-export:hover {
+            border-color: var(--hot);
+            color: var(--hot);
+        }
+
+        .btn-export .ico {
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .viewport {
+            background: #030303;
+            border: 2px solid var(--rim);
+            border-bottom: 4px solid var(--chrome);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .viewport-corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--hot);
+            border-style: solid;
+            opacity: 0.5;
+            z-index: 2;
+        }
+        .vc-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+        .vc-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+        .vc-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+        .vc-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+        #ascii-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+            padding: 15px;
+        }
+
+        
+
 </style>
 </head>
 
