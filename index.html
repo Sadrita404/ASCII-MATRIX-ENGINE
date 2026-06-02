@@ -754,3 +754,52 @@
             <div class="toast" id="toast-notify">ACK</div>
         </div>
     </div>
+
+    <video id="video" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas-mem" width="640" height="480"></canvas>
+
+    <script>
+        const state = {
+            isStreaming: false,
+            fpsInterval: 100 / 30,
+            then: performance.now(),
+            animationId: null,
+            facingMode: 'user',
+            streamReference: null
+        };
+
+        const nodes = {
+            video: document.getElementById('video'),
+            canvas: document.getElementById('canvas-mem'),
+            ctx: document.getElementById('canvas-mem').getContext('2d', { willReadFrequently: true, alpha: false }),
+            output: document.getElementById('ascii-output'),
+            masterBtn: document.getElementById('master-toggle'),
+            splashBtn: document.getElementById('splash-trigger-btn'),
+            splash: document.getElementById('splash'),
+            toast: document.getElementById('toast-notify'),
+            ledStream: document.getElementById('led-stream'),
+            width: document.getElementById('control-width'),
+            fps: document.getElementById('control-fps'),
+            bright: document.getElementById('control-bright'),
+            contrast: document.getElementById('control-contrast'),
+            charset: document.getElementById('control-charset'),
+            customWrapper: document.getElementById('custom-charset-wrapper'),
+            customInput: document.getElementById('control-custom-char'),
+            optColor: document.getElementById('opt-color'),
+            optMirror: document.getElementById('opt-mirror'),
+            optInvert: document.getElementById('opt-invert'),
+            optEdge: document.getElementById('opt-edge'),
+            lblWidth: document.getElementById('val-width'),
+            lblFps: document.getElementById('val-fps'),
+            lblBright: document.getElementById('val-bright'),
+            lblContrast: document.getElementById('val-contrast')
+        };
+
+        function syncLabels() {
+            nodes.lblWidth.textContent = `${nodes.width.value} cols`;
+            nodes.lblFps.textContent = `${nodes.fps.value} Hz`;
+            nodes.lblBright.textContent = nodes.bright.value >= 0 ? `+${nodes.bright.value}` : nodes.bright.value;
+            nodes.lblContrast.textContent = nodes.contrast.value >= 0 ? `+${nodes.contrast.value}` : nodes.contrast.value;
+            state.fpsInterval = 1000 / parseInt(nodes.fps.value);
+        }
+    </script>
