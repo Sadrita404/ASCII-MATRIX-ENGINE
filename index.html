@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII MATRIX ENGINE </title>
+    <title>ASCII MATRIX ENGINE</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Plus+Jakarta+Sans:ital,wght@0,700;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
 
         :root {
             --ink: #0d0d0d;
-            --panel: #1616161;
-            --rised: #1f1f1f;
+            --panel: #161616;
+            --raised: #1f1f1f;
             --sunken: #0a0a0a;
             --chrome: #2a2a2a;
             --rim: #3a3a3a;
@@ -64,7 +64,7 @@
         .machine-header::after { top: 4px; right: 6px; }
 
         .header-title {
-            font-family: 'Bebas Neue' , sans-serif;
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 2rem;
             letter-spacing: 6px;
             color: var(--hot);
@@ -111,7 +111,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            overflow: auto;
+            overflow-y: auto;
             padding-right: 4px;
         }
 
@@ -130,7 +130,7 @@
         .panel-block::after,
         .panel-block .corner-tr,
         .panel-block .corner-bl {
-            content: '🔵';
+            content: '●';
             position: absolute;
             font-size: 5px;
             color: var(--screw);
@@ -186,7 +186,7 @@
             position: relative;
             top: 0;
         }
-        
+
         .btn-main:active {
             top: 3px;
             border-bottom: 2px solid var(--hot-dim);
@@ -315,14 +315,14 @@
         }
 
         .field-group {
-            margin: 10px;
+            margin-bottom: 10px;
         }
 
         .toggle-btn {
             width: 100%;
             background: var(--raised);
             border: 1px solid var(--rim);
-            border-bottom: 3px;
+            border-bottom: 3px solid #000;
             border-right: 2px solid #000;
             color: var(--muted);
             padding: 9px 12px;
@@ -395,7 +395,7 @@
             border-right: 1px solid var(--rim);
             color: var(--muted);
             padding: 9px 6px;
-            font-family: 'Share Tech Mono' , monospace ;
+            font-family: 'Share Tech Mono', monospace;
             font-size: 0.68rem;
             letter-spacing: 1px;
             cursor: pointer;
@@ -426,11 +426,11 @@
         .btn-export {
             background: var(--raised);
             border: 1px solid var(--rim);
-            border-bottom: 3px solid var(--rim);
+            border-bottom: 3px solid #000;
             border-right: 2px solid #000;
             color: var(--white);
             padding: 10px 8px;
-            font-family: 'Share Tech Mono' , monospace;
+            font-family: 'Share Tech Mono', monospace;
             font-size: 0.65rem;
             letter-spacing: 1px;
             cursor: pointer;
@@ -494,7 +494,7 @@
         }
 
         pre {
-            font-family: 'Share Tech Mono' , 'Courier New' , monospace;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
             font-size: 8px;
             line-height: 5px;
             letter-spacing: 0px;
@@ -552,7 +552,7 @@
         .splash-inner::after { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
 
         .splash-title {
-            font-family: 'Bebas Neue' , sans-serif;
+            font-family: 'Bebas Neue', sans-serif;
             font-size: 1.1rem;
             letter-spacing: 5px;
             color: var(--hot);
@@ -577,7 +577,7 @@
             padding: 10px 18px;
             font-size: 0.68rem;
             letter-spacing: 1.5px;
-            font-family: 'Share Tech Mono' , monospace;
+            font-family: 'Share Tech Mono', monospace;
             transform: translateY(80px);
             opacity: 0;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -610,147 +610,147 @@
     <div class="machine-header">
         <div class="header-title">ASCII MATRIX ENGINE</div>
         <div class="header-badge">
-            <div class="led" id="led-stream">
-                <span class="header-label">STREAM</span>
-                <div class="led warn" style="margin-left:8px;"></div>
-                <span class="header-label">PWR</span>
+            <div class="led" id="led-stream"></div>
+            <span class="header-label">STREAM</span>
+            <div class="led warn" style="margin-left:8px;"></div>
+            <span class="header-label">PWR</span>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="sidebar">
+
+            <button class="btn-main" id="master-toggle">▶ INIT STREAM</button>
+
+            <div class="panel-block">
+                <div class="panel-label">ENGINE CONFIG</div>
+                <div class="panel-inner">
+                    <div class="slider-row">
+                        <div class="slider-header">
+                            <span class="slider-name">Resolution Width</span>
+                            <span class="slider-val" id="val-width">120 cols</span>
+                        </div>
+                        <input type="range" id="control-width" min="40" max="240" step="5" value="120">
+                    </div>
+                    <div class="slider-row">
+                        <div class="slider-header">
+                            <span class="slider-name">Frame Rate</span>
+                            <span class="slider-val" id="val-fps">30 Hz</span>
+                        </div>
+                        <input type="range" id="control-fps" min="5" max="60" step="1" value="30">
+                    </div>
+                    <div class="slider-row">
+                        <div class="slider-header">
+                            <span class="slider-name">Luminance Gain</span>
+                            <span class="slider-val" id="val-bright">0</span>
+                        </div>
+                        <input type="range" id="control-bright" min="-100" max="100" step="1" value="0">
+                    </div>
+                    <div class="slider-row" style="margin-bottom:0;">
+                        <div class="slider-header">
+                            <span class="slider-name">Contrast</span>
+                            <span class="slider-val" id="val-contrast">0</span>
+                        </div>
+                        <input type="range" id="control-contrast" min="-100" max="100" step="1" value="0">
+                    </div>
+                </div>
             </div>
+
+            <div class="panel-block">
+                <div class="panel-label">GLYPH MATRIX</div>
+                <div class="panel-inner">
+                    <div class="field-group">
+                        <span class="field-label">Character Set</span>
+                        <div class="select-wrap">
+                            <select id="control-charset">
+                                <option value="detailed">DETAILED — $@B%8&WM#*oahk…</option>
+                                <option value="standard">STANDARD — @#S%?*+;:,.</option>
+                                <option value="blocks">BLOCKS — █▓▒░</option>
+                                <option value="binary">BINARY — 10</option>
+                                <option value="braille">BRAILLE — ⣿⣾⣶⣤⡄</option>
+                                <option value="custom">CUSTOM SET</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-group" id="custom-charset-wrapper" style="display:none;">
+                        <span class="field-label">Custom Characters</span>
+                        <input type="text" id="control-custom-char" value="XYZabc123. ">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-block">
+                <div class="panel-label">KERNEL FX</div>
+                <div class="panel-inner">
+                    <button class="toggle-btn" id="togbtn-color">
+                        <span>True-Color Overlay</span>
+                        <div class="tog-indicator"></div>
+                        <input type="checkbox" id="opt-color">
+                    </button>
+                    <button class="toggle-btn on" id="togbtn-mirror">
+                        <span>Mirror Transpose</span>
+                        <div class="tog-indicator"></div>
+                        <input type="checkbox" id="opt-mirror" checked>
+                    </button>
+                    <button class="toggle-btn" id="togbtn-invert">
+                        <span>Invert Engine</span>
+                        <div class="tog-indicator"></div>
+                        <input type="checkbox" id="opt-invert">
+                    </button>
+                    <button class="toggle-btn" id="togbtn-edge">
+                        <span>Sobel Edge Detect</span>
+                        <div class="tog-indicator"></div>
+                        <input type="checkbox" id="opt-edge">
+                    </button>
+                    <div class="divider"></div>
+                    <span class="cam-label">Camera Facing</span>
+                    <div class="cam-group">
+                        <label class="cam-btn active" id="lbl-facing-user">
+                            <input type="radio" name="cam-facing" value="user" checked>
+                            ◈ FRONT
+                        </label>
+                        <label class="cam-btn" id="lbl-facing-env">
+                            <input type="radio" name="cam-facing" value="environment">
+                            ◉ REAR
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-block">
+                <div class="panel-label">EXPORT</div>
+                <div class="panel-inner">
+                    <div class="export-grid">
+                        <button class="btn-export" id="btn-snap-text">
+                            <span class="ico">⎘</span>COPY TEXT
+                        </button>
+                        <button class="btn-export" id="btn-snap-png">
+                            <span class="ico">↓</span>SAVE PNG
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="dashboard">
-            <div class="sidebar">
+        <div class="viewport">
+            <div class="viewport-corner vc-tl"></div>
+            <div class="viewport-corner vc-tr"></div>
+            <div class="viewport-corner vc-bl"></div>
+            <div class="viewport-corner vc-br"></div>
 
-                <button class="btn-main" id="master-toggle">▶️ INIT STREAM</button>
-
-                <div class="panel-block">
-                    <div class="panel-label">ENGINE CONFIG</div>
-                    <div class="panel-inner">
-                        <div class="slider-row">
-                            <div class="slider-header">
-                                <span class="slider-name">Resolution Width</span>
-                                <span class="slider-val" id="val-width">120 cols</span>
-                            </div>
-                            <input type="range" id="control-width" min="40" max="240" step="5" value="120">
-                        </div>
-                        <div class="slider-row">
-                            <div class="slider-header">
-                                <span class="slider-name">Frame Rate</span>
-                                <span class="slider-val" id="val-fps">30 Hz</span>
-                            </div>
-                            <input type="range" id="control-fps" min="5" max="60" step="1" value="30">
-                        </div>
-                        <div class="slider-row">
-                            <div class="slider-header">
-                                <span class="slider-name">Luminance Gain</span>
-                                <span class="slider-val" id="val-bright">0</span>
-                            </div>
-                            <input type="range" id="control-bright" min="-100" max="100" step="1" value="0">
-                        </div>
-                        <div class="slider-row" style="margin-bottom: 0;">
-                            <div class="slider-header">
-                                <span class="slider-name">Contrast</span>
-                                <span class="slider-val" id="val-contrast">0</span>
-                            </div>
-                            <input type="range" id="control-contrast" min="-100" max="100" step="1" value="0">
-                        </div>
-                    </div>
+            <div class="splash-screen" id="splash">
+                <div class="splash-inner">
+                    <div class="splash-title">MEDIA ACCESS REQUIRED</div>
+                    <div class="splash-text">Camera permissions must be granted before the optical pipeline can be initialized.</div>
+                    <button class="btn-main" id="splash-trigger-btn" style="min-width:220px;">▶ INIT CAMERA</button>
                 </div>
-
-                <div class="panel-block">
-                    <div class="panel-label">GLYPH MATRIX</div>
-                    <div class="panel-inner">
-                        <div class="field-group">
-                            <span class="field-label">Character</span>
-                            <div class="select-wrap">
-                                <select id="control-charset">
-                                    <option value="detailed">DETAILED - $@B%8&WM#*oahk..</option>
-                                    <option value="standard">STANDARD - </option>
-                                    <option value="blocks">BLOCKS - </option>
-                                    <option value="binary">BINARY - </option>
-                                    <option value="braille">BRAILLE - </option>
-                                    <option value="custom">CUSTOM SET </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="field-group" id="custom-charset-wrapper" style="display: none;">
-                            <span class="field-label">Custom Characters</span>
-                            <input type="text" id="control-custom-char" value="XYZabc123. ">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-block">
-                    <div class="panel-label">KERNEL FX</div>
-                    <div class="panel-inner">
-                        <button class="toggle-btn" id="togbtn-color">
-                            <span>True-Color Overlay</span>
-                            <div class="tog-indicator"></div>
-                            <input type="checkbox" id="opt-color">
-                        </button>
-                        <button class="toggle-btn on" id="togbtn-mirror">
-                            <span>Mirror Transpose</span>
-                            <div class="tog-indicator"></div>
-                            <input type="checkbox" id="opt-mirror" checked>
-                        </button>
-                        <button class="toggle-btn" id="togbtn-invert">
-                            <span>Invert Engine</span>
-                            <div class="tog-indicator"></div>
-                            <input type="checkbox" id="opt-invert">
-                        </button>
-                        <button class="toggle-btn" id="togbtn-edge">
-                            <span>Sobel Edge Detect</span>
-                            <div class="tog-indicator"></div>
-                            <input type="checkbox" id="opt-edge">
-                        </button>
-                        <div class="divider"></div>
-                        <span class="cam-label">Camera Facing</span>
-                        <div class="cam-group">
-                            <label class="cam-btn active" id="lbl-facing-user">
-                                <input type="radio" name="cam-facing-user" value="user" checked>
-                                🔹 FRONT
-                            </label>
-                            <label class="cam-btn" id="lbl-facing-env">
-                                <input type="radio" name="cam-facing" value="environment">
-                                🔘 REAR
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-block">
-                    <div class="panel-label">EXPORT</div>
-                    <div class="panel-inner">
-                        <div class="export-grid">
-                            <button class="btn-export" id="btn-snap-text">
-                                <span class="ico">⏩</span>
-                            </button>
-                            <button class="btn-export" id="btn-snap-png">
-                                <span class="ico">↓</span> SAVE PNG
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            <div class="viewport">
-                <div class="viewport-corner vc-tl"></div>
-                <div class="viewport-corner vc-tr"></div> 
-                <div class="viewport-corner vc-bl"></div>
-                <div class="viewport-corner vc-br"></div>
-
-                <div class="splash-screen" id="splash">
-                    <div class="splash-inner">
-                        <div class="splash-title">MEDIA ACCESS REQUIRED</div>
-                        <div class="splash-text"> Camera permissions must be granted before the optical pipeline can be initalzed. </div>
-                            <button class="btn-main" id="splash-trigger-btn" style="min-width: 220px;">▶️ INIT CAMERA</button>
-                    </div>
-                </div>
-
-                <div id="ascii-container">
-                    <pre id="ascii-output"></pre>
-                </div>
-
-                <div class="toast" id="toast-notify">ACK</div>
+            <div id="ascii-container">
+                <pre id="ascii-output"></pre>
             </div>
+
+            <div class="toast" id="toast-notify">ACK</div>
         </div>
+    </div>
