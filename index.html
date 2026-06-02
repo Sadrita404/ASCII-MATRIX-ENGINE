@@ -716,6 +716,41 @@
                         </div>
                     </div>
                 </div>
-                
+
+                <div class="panel-block">
+                    <div class="panel-label">EXPORT</div>
+                    <div class="panel-inner">
+                        <div class="export-grid">
+                            <button class="btn-export" id="btn-snap-text">
+                                <span class="ico">⏩</span>
+                            </button>
+                            <button class="btn-export" id="btn-snap-png">
+                                <span class="ico">↓</span> SAVE PNG
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="viewport">
+                <div class="viewport-corner vc-tl"></div>
+                <div class="viewport-corner vc-tr"></div> 
+                <div class="viewport-corner vc-bl"></div>
+                <div class="viewport-corner vc-br"></div>
+
+                <div class="splash-screen" id="splash">
+                    <div class="splash-inner">
+                        <div class="splash-title">MEDIA ACCESS REQUIRED</div>
+                        <div class="splash-text"> Camera permissions must be granted before the optical pipeline can be initalzed. </div>
+                            <button class="btn-main" id="splash-trigger-btn" style="min-width: 220px;">▶️ INIT CAMERA</button>
+                    </div>
+                </div>
+
+                <div id="ascii-container">
+                    <pre id="ascii-output"></pre>
+                </div>
+
+                <div class="toast" id="toast-notify">ACK</div>
             </div>
         </div>
