@@ -802,4 +802,81 @@
             nodes.lblContrast.textContent = nodes.contrast.value >= 0 ? `+${nodes.contrast.value}` : nodes.contrast.value;
             state.fpsInterval = 1000 / parseInt(nodes.fps.value);
         }
+
+        [nodes.width, nodes.fps, nodes.bright, nodes.contrast].forEach(el =>> el.addEventListener('input', syncLabels));
+
+        nodes.charset.addEventListener('change', () => {
+            nodes.customWrapper.style.display = (nodes.charset.value === 'custom')? 'flex' : 'none' ;
+            nodes.customWrapper.style.flexDirection = 'column';
+        });
+
+        function setupToggleBtn(btnId, checkboxId) {
+            const btn = document.getElementById(btnId);
+            const cb = document.getElementById(checkboxId);
+            btn.addEventListener('click', () => {
+                cb.checked = !cb.checked;
+                btn.classList.toggle('on', cb.checked);
+                if (checkboxId === 'opt-mirror') {
+                    nodes.output.classList.toggle('mirror', cb.checked);
+                }
+            });
+        }
+
+        setupToggleBtn('togbtn-color', 'opt-color');
+        setupToggleBtn('togbtn-mirror', 'opt-mirror');
+        setupToggleBtn('togbtn-invert', 'opt-invert');
+        setupToggleBtn('togbtn-edge', 'opt-edge');
+
+        document.querySelectorAll('input[name="cam-facing"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                state.facingMode = e.target.value;
+                document.getElementById('lbl-facing-user').classList.toggle('active', e.target.value === 'user');
+                document.getElementById('lbl-facing-env').classList.toggle('active', e.target.value === 'environment');
+                if (state.isStreaming) restarPipeline();
+            });
+        });
+
+        document.querySelectorAll('.cam-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const radio = btn.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+            });
+        });
+
+        nodes.masterBtn.addEventListener('click' , togglePipeline);
+        nodes.splashBtn.addEventListener('click' , togglePipeline);
+
+        function toast(msg) {
+            nodes.toast.textContent = `SYS // ${msg.toUpperCase()}`;
+            nodes.toast.classList.add('show');
+            setTimeout(() => nodes.toast.classList.remove('show'), 3000);
+        }
+
+        function togglePipeline() {
+            state.isStreaming ? stopPipeline() : startPipeline();
+        }
+
+        async function startPipeline() {
+            syncLabels();
+            try {
+                if ( state.streamReference) state.streamReference.getTracks().forEach(t => t.stop());
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: { facingMode: { ideal: state.facingMode }, width: { ideal: 640}, height: { ideal: 480 } }
+                });
+                state.streamReference = stream;
+                nodes.video.srcObject = stream;
+                nodes.video.onloadedmetadata = () => {
+                    nodes.video.play().then(() => {
+                        state.isStreaming = true;
+                        setUIActive();
+                        renderLoop();
+                    });
+                };
+            } catch (err) {
+                console.error(err);
+                toast("Init failed - check permissions");
+                setUIIdle();
+            }
+        }
     </script>
