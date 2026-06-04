@@ -949,12 +949,54 @@
                 const doInvert = nodes.optInvert.checked;
                 const doEdge = nodes.optEdge.checked;
 
+                let glyphs = nodes.charset.value === 'custom' ? nodes.customInput.value : nodes.charset.options[nodes.charset.selectedIndex].text;
+                if (nodes.charset.value === 'braille') glyphs = "⣿⣾⣶⣤⡄";
+                if (nodes.charset.value === 'detailed') glyphs = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ';
+                if (nodes.charset.value === 'standard') glyphs = '@#S%?*+;:,.';
+                if (nodes.charset.value === 'blocks') glyphs = '█▓▒░';
+                if (nodes.charset.value === 'binary') glyphs = '10';
+                const glen = glyphs.length;
                 
-                
-                
+                let sobelBuf = null;
+                if (doEdge) sobelBuf = sobelPass(imgData, cols, rows);
+
+                let html = "";
+                for (let y = 0; y < rows; y++) {
+                    let line = "";
+                    for (let x = 0; x < cols; x++) {
+                        const i = (y * cols + x) * 4;
+                        let r = buf[i], g = buf[i+1], b = buf[i+2];
+                        if (bright !== 0) { r += bright; g += bright; b += bright; }
+                        if (contrastF !== 1) {
+                            r = contrastF * (r - 128) + 128;
+                            g = contrastF * (g - 128) + 128;
+                            b = contrastF * (b - 128) + 128;
+                        }
+                        let lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+                        if (doInvert) { lum = 255 - lum; r = 255-r; g = 255-g; b = 255-b; }
+                        if (doEdge && sobelBuf) lum = sobelBuf[y * cols + x];
+                        lum = Math.max(0, Math.min(255, lum));
+                        const gi = Math.floor((lum / 255) * (glen - 1));
+                        let ch = glyphs[gi] || ' ';
+                        if (ch === ' ') ch = '&nbsp;';
+                        else if (ch === '<') ch = '&lt;';
+                        else if (ch === '>') ch = '&gt;';
+                        else if (ch === '&') ch = '&amp;';
+                        if (doColor) {
+                            const cr = Math.min(255,Math.max(0,Math.round(r)));
+                            const cg = Math.min(255,Math.max(0,Math.round(g)));
+                            const cb2 = Math.min(255,Math.max(0,Math.round(b)));
+                            line += `<span style="color:rgb(${cr},${cg},${cb2})">${ch}</span>`;
+                        } else {
+                            line += ch;
+                        }
+                    }
+                    html += line + "\n";
+                }
+                nodes.output.innerHTML = html;
+            } catch(e) {
+                console.error(e);
             }
         }
-        
-
 
     </script>
