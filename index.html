@@ -1,1002 +1,1233 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ASCII MATRIX ENGINE</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
-
-        :root {
-            --ink: #0d0d0d;
-            --panel: #161616;
-            --raised: #1f1f1f;
-            --sunken: #0a0a0a;
-            --chrome: #2a2a2a;
-            --rim: #3a3a3a;
-            --hot: #e8ff00;
-            --hot-dim: #b3c400;
-            --red: #ff2200;
-            --red-dim: #991500;
-            --green: #00ff88;
-            --green-dim: #00994d;
-            --white: #f5f5f0;
-            --muted: #606060;
-            --screw: #252525;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            background: var(--ink);
-            color: var(--white);
-            font-family: 'Share Tech Mono', monospace;
-            min-height: 100vh;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
-        }
-
-        .machine-header {
-            width: 100%;
-            max-width: 1600px;
-            background: var(--panel);
-            border: 3px solid var(--rim);
-            border-bottom: 6px solid var(--chrome);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            margin-bottom: 16px;
-            position: relative;
-        }
-
-        .machine-header::before,
-        .machine-header::after {
-            content: '+';
-            position: absolute;
-            color: var(--muted);
-            font-size: 10px;
-        }
-        .machine-header::before { top: 4px; left: 6px; }
-        .machine-header::after { top: 4px; right: 6px; }
-
-        .header-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 6px;
-            color: var(--hot);
-            text-shadow: 0 0 8px rgba(232,255,0,0.4);
-        }
-
-        .header-badge {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .led {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--muted);
-            border: 1px solid #000;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-            transition: all 0.2s;
-        }
-        .led.active { background: var(--green); box-shadow: 0 0 6px var(--green), inset 0 1px 0 rgba(255,255,255,0.2); }
-        .led.warn { background: var(--hot); box-shadow: 0 0 6px var(--hot); }
-        .led.danger { background: var(--red); box-shadow: 0 0 6px var(--red); }
-
-        .header-label {
-            font-size: 0.65rem;
-            color: var(--muted);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: 340px 1fr;
-            gap: 16px;
-            width: 100%;
-            max-width: 1600px;
-            height: calc(100vh - 130px);
-            min-height: 700px;
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-track { background: var(--ink); }
-        .sidebar::-webkit-scrollbar-thumb { background: var(--rim); }
-
-        .panel-block {
-            background: var(--panel);
-            border: 2px solid var(--rim);
-            border-bottom: 4px solid var(--chrome);
-            position: relative;
-        }
-
-        .panel-block::before,
-        .panel-block::after,
-        .panel-block .corner-tr,
-        .panel-block .corner-bl {
-            content: '●';
-            position: absolute;
-            font-size: 5px;
-            color: var(--screw);
-            width: 8px;
-            height: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--chrome);
-            border: 1px solid #000;
-            border-radius: 50%;
-        }
-        .panel-block::before { top: 5px; left: 5px; }
-        .panel-block::after { top: 5px; right: 5px; }
-
-        .panel-inner {
-            padding: 28px 14px 14px;
-        }
-
-        .panel-label {
-            position: absolute;
-            top: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--hot);
-            color: #000;
-            font-size: 0.6rem;
-            font-weight: bold;
-            letter-spacing: 3px;
-            padding: 2px 10px;
-            text-transform: uppercase;
-            white-space: nowrap;
-        }
-
-        .btn-main {
-            width: 100%;
-            background: var(--hot);
-            color: #000;
-            border: none;
-            border-bottom: 5px solid var(--hot-dim);
-            border-right: 3px solid var(--hot-dim);
-            padding: 14px 20px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.3rem;
-            letter-spacing: 4px;
-            cursor: pointer;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.05s;
-            position: relative;
-            top: 0;
-        }
-
-        .btn-main:active {
-            top: 3px;
-            border-bottom: 2px solid var(--hot-dim);
-        }
-
-        .btn-main.halt {
-            background: var(--red);
-            border-bottom-color: var(--red-dim);
-            border-right-color: var(--red-dim);
-            color: #fff;
-        }
-
-        .btn-main.halt:active {
-            top: 3px;
-            border-bottom: 2px solid var(--red-dim);
-        }
-
-        .slider-row {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .slider-name {
-            font-size: 0.65rem;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
-
-        .slider-val {
-            background: var(--sunken);
-            border: 1px solid var(--rim);
-            border-top: 1px solid #000;
-            color: var(--hot);
-            font-size: 0.7rem;
-            padding: 2px 7px;
-            font-family: 'Share Tech Mono', monospace;
-            min-width: 52px;
-            text-align: right;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            background: var(--sunken);
-            border: 1px solid #000;
-            border-top: 1px solid var(--rim);
-            outline: none;
-            cursor: pointer;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 26px;
-            background: var(--chrome);
-            border: 2px solid var(--rim);
-            border-top: 2px solid #555;
-            border-bottom: 3px solid #000;
-            cursor: pointer;
-            position: relative;
-        }
-
-        input[type="range"]::-webkit-slider-thumb::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 2px;
-            height: 12px;
-            background: var(--hot);
-            transform: translate(-50%, -50%);
-        }
-
-        select, input[type="text"] {
-            background: var(--sunken);
-            border: 1px solid #000;
-            border-top: 1px solid var(--rim);
-            color: var(--white);
-            padding: 8px 10px;
-            font-size: 0.75rem;
-            font-family: 'Share Tech Mono', monospace;
-            outline: none;
-            width: 100%;
-            cursor: pointer;
-            appearance: none;
-            -webkit-appearance: none;
-        }
-
-        .select-wrap {
-            position: relative;
-        }
-
-        .select-wrap::after {
-            content: '▼';
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.55rem;
-            color: var(--hot);
-            pointer-events: none;
-        }
-
-        select:focus, input[type="text"]:focus {
-            border-color: var(--hot);
-            outline: 1px solid var(--hot);
-        }
-
-        .field-label {
-            font-size: 0.62rem;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .field-group {
-            margin-bottom: 10px;
-        }
-
-        .toggle-btn {
-            width: 100%;
-            background: var(--raised);
-            border: 1px solid var(--rim);
-            border-bottom: 3px solid #000;
-            border-right: 2px solid #000;
-            color: var(--muted);
-            padding: 9px 12px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            transition: all 0.05s;
-            position: relative;
-            top: 0;
-        }
-
-        .toggle-btn:active {
-            top: 2px;
-            border-bottom: 1px solid #000;
-        }
-
-        .toggle-btn.on {
-            background: var(--sunken);
-            color: var(--hot);
-            border-color: var(--hot);
-            border-bottom: 3px solid var(--hot-dim);
-        }
-
-        .toggle-btn .tog-indicator {
-            width: 32px;
-            height: 14px;
-            background: var(--sunken);
-            border: 1px solid var(--rim);
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .toggle-btn .tog-indicator::after {
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 10px;
-            background: var(--muted);
-            top: 1px;
-            left: 1px;
-            transition: all 0.1s;
-        }
-
-        .toggle-btn.on .tog-indicator::after {
-            left: 17px;
-            background: var(--hot);
-            box-shadow: 0 0 4px var(--hot);
-        }
-
-        .toggle-btn input[type="checkbox"] { display: none; }
-
-        .cam-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            border: 1px solid var(--rim);
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .cam-btn {
-            background: var(--raised);
-            border: none;
-            border-right: 1px solid var(--rim);
-            color: var(--muted);
-            padding: 9px 6px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 1px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .cam-btn:last-child { border-right: none; }
-
-        .cam-btn.active {
-            background: var(--hot);
-            color: #000;
-            font-weight: bold;
-        }
-
-        .cam-btn input { display: none; }
-
-        .export-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-
-        .btn-export {
-            background: var(--raised);
-            border: 1px solid var(--rim);
-            border-bottom: 3px solid #000;
-            border-right: 2px solid #000;
-            color: var(--white);
-            padding: 10px 8px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 1px;
-            cursor: pointer;
-            text-transform: uppercase;
-            text-align: center;
-            transition: all 0.05s;
-            position: relative;
-            top: 0;
-            line-height: 1.4;
-        }
-
-        .btn-export:active {
-            top: 2px;
-            border-bottom: 1px solid #000;
-        }
-
-        .btn-export:hover {
-            border-color: var(--hot);
-            color: var(--hot);
-        }
-
-        .btn-export .ico {
-            display: block;
-            font-size: 1rem;
-            margin-bottom: 3px;
-        }
-
-        .viewport {
-            background: #030303;
-            border: 2px solid var(--rim);
-            border-bottom: 4px solid var(--chrome);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .viewport-corner {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border-color: var(--hot);
-            border-style: solid;
-            opacity: 0.5;
-            z-index: 2;
-        }
-        .vc-tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
-        .vc-tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
-        .vc-bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
-        .vc-br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
-
-        #ascii-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: auto;
-            padding: 15px;
-        }
-
-        pre {
-            font-family: 'Share Tech Mono', 'Courier New', monospace;
-            font-size: 8px;
-            line-height: 5px;
-            letter-spacing: 0px;
-            margin: 0;
-            white-space: pre;
-            user-select: all;
-            color: var(--green);
-            transform-origin: center;
-        }
-
-        .mirror { transform: scaleX(-1); }
-
-        #video, #canvas-mem {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .splash-screen {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            background: rgba(3,3,3,0.96);
-            z-index: 5;
-        }
-
-        .splash-inner {
-            border: 2px solid var(--rim);
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            text-align: center;
-            position: relative;
-        }
-
-        .splash-inner::before,
-        .splash-inner::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border-color: var(--hot);
-            border-style: solid;
-            opacity: 0.7;
-        }
-        .splash-inner::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
-        .splash-inner::after { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
-
-        .splash-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.1rem;
-            letter-spacing: 5px;
-            color: var(--hot);
-        }
-
-        .splash-text {
-            font-size: 0.72rem;
-            color: var(--muted);
-            letter-spacing: 1px;
-            max-width: 320px;
-            line-height: 1.7;
-        }
-
-        .toast {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            background: var(--panel);
-            border: 1px solid var(--hot);
-            border-left: 4px solid var(--hot);
-            color: var(--hot);
-            padding: 10px 18px;
-            font-size: 0.68rem;
-            letter-spacing: 1.5px;
-            font-family: 'Share Tech Mono', monospace;
-            transform: translateY(80px);
-            opacity: 0;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 10;
-            text-transform: uppercase;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--rim);
-            margin: 4px 0 10px;
-        }
-
-        .cam-label {
-            font-size: 0.62rem;
-            letter-spacing: 2px;
-            color: var(--muted);
-            text-transform: uppercase;
-            margin-bottom: 0;
-        }
+      @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap");
+
+      :root {
+        --ink: #0d0d0d;
+        --panel: #161616;
+        --raised: #1f1f1f;
+        --sunken: #0a0a0a;
+        --chrome: #2a2a2a;
+        --rim: #3a3a3a;
+        --hot: #e8ff00;
+        --hot-dim: #b3c400;
+        --red: #ff2200;
+        --red-dim: #991500;
+        --green: #00ff88;
+        --green-dim: #00994d;
+        --white: #f5f5f0;
+        --muted: #606060;
+        --screw: #252525;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--ink);
+        color: var(--white);
+        font-family: "Share Tech Mono", monospace;
+        min-height: 100vh;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-image: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.015) 2px,
+          rgba(255, 255, 255, 0.015) 4px
+        );
+      }
+
+      .machine-header {
+        width: 100%;
+        max-width: 1600px;
+        background: var(--panel);
+        border: 3px solid var(--rim);
+        border-bottom: 6px solid var(--chrome);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        margin-bottom: 16px;
+        position: relative;
+      }
+
+      .machine-header::before,
+      .machine-header::after {
+        content: "+";
+        position: absolute;
+        color: var(--muted);
+        font-size: 10px;
+      }
+      .machine-header::before {
+        top: 4px;
+        left: 6px;
+      }
+      .machine-header::after {
+        top: 4px;
+        right: 6px;
+      }
+
+      .header-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        letter-spacing: 6px;
+        color: var(--hot);
+        text-shadow: 0 0 8px rgba(232, 255, 0, 0.4);
+      }
+
+      .header-badge {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .led {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--muted);
+        border: 1px solid #000;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.2s;
+      }
+      .led.active {
+        background: var(--green);
+        box-shadow: 0 0 6px var(--green), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+      .led.warn {
+        background: var(--hot);
+        box-shadow: 0 0 6px var(--hot);
+      }
+      .led.danger {
+        background: var(--red);
+        box-shadow: 0 0 6px var(--red);
+      }
+
+      .header-label {
+        font-size: 0.65rem;
+        color: var(--muted);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .dashboard {
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 16px;
+        width: 100%;
+        max-width: 1600px;
+        height: calc(100vh - 130px);
+        min-height: 700px;
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sidebar::-webkit-scrollbar-track {
+        background: var(--ink);
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: var(--rim);
+      }
+
+      .panel-block {
+        background: var(--panel);
+        border: 2px solid var(--rim);
+        border-bottom: 4px solid var(--chrome);
+        position: relative;
+      }
+
+      .panel-block::before,
+      .panel-block::after,
+      .panel-block .corner-tr,
+      .panel-block .corner-bl {
+        content: "●";
+        position: absolute;
+        font-size: 5px;
+        color: var(--screw);
+        width: 8px;
+        height: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--chrome);
+        border: 1px solid #000;
+        border-radius: 50%;
+      }
+      .panel-block::before {
+        top: 5px;
+        left: 5px;
+      }
+      .panel-block::after {
+        top: 5px;
+        right: 5px;
+      }
+
+      .panel-inner {
+        padding: 28px 14px 14px;
+      }
+
+      .panel-label {
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--hot);
+        color: #000;
+        font-size: 0.6rem;
+        font-weight: bold;
+        letter-spacing: 3px;
+        padding: 2px 10px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .btn-main {
+        width: 100%;
+        background: var(--hot);
+        color: #000;
+        border: none;
+        border-bottom: 5px solid var(--hot-dim);
+        border-right: 3px solid var(--hot-dim);
+        padding: 14px 20px;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.3rem;
+        letter-spacing: 4px;
+        cursor: pointer;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.05s;
+        position: relative;
+        top: 0;
+      }
+
+      .btn-main:active {
+        top: 3px;
+        border-bottom: 2px solid var(--hot-dim);
+      }
+
+      .btn-main.halt {
+        background: var(--red);
+        border-bottom-color: var(--red-dim);
+        border-right-color: var(--red-dim);
+        color: #fff;
+      }
+
+      .btn-main.halt:active {
+        top: 3px;
+        border-bottom: 2px solid var(--red-dim);
+      }
+
+      .slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+
+      .slider-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .slider-name {
+        font-size: 0.65rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+      }
+
+      .slider-val {
+        background: var(--sunken);
+        border: 1px solid var(--rim);
+        border-top: 1px solid #000;
+        color: var(--hot);
+        font-size: 0.7rem;
+        padding: 2px 7px;
+        font-family: "Share Tech Mono", monospace;
+        min-width: 52px;
+        text-align: right;
+      }
+
+      input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        background: var(--sunken);
+        border: 1px solid #000;
+        border-top: 1px solid var(--rim);
+        outline: none;
+        cursor: pointer;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 26px;
+        background: var(--chrome);
+        border: 2px solid var(--rim);
+        border-top: 2px solid #555;
+        border-bottom: 3px solid #000;
+        cursor: pointer;
+        position: relative;
+      }
+
+      input[type="range"]::-webkit-slider-thumb::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 2px;
+        height: 12px;
+        background: var(--hot);
+        transform: translate(-50%, -50%);
+      }
+
+      select,
+      input[type="text"] {
+        background: var(--sunken);
+        border: 1px solid #000;
+        border-top: 1px solid var(--rim);
+        color: var(--white);
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        font-family: "Share Tech Mono", monospace;
+        outline: none;
+        width: 100%;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+
+      .select-wrap {
+        position: relative;
+      }
+
+      .select-wrap::after {
+        content: "▼";
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.55rem;
+        color: var(--hot);
+        pointer-events: none;
+      }
+
+      select:focus,
+      input[type="text"]:focus {
+        border-color: var(--hot);
+        outline: 1px solid var(--hot);
+      }
+
+      .field-label {
+        font-size: 0.62rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      .field-group {
+        margin-bottom: 10px;
+      }
+
+      .toggle-btn {
+        width: 100%;
+        background: var(--raised);
+        border: 1px solid var(--rim);
+        border-bottom: 3px solid #000;
+        border-right: 2px solid #000;
+        color: var(--muted);
+        padding: 9px 12px;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        transition: all 0.05s;
+        position: relative;
+        top: 0;
+      }
+
+      .toggle-btn:active {
+        top: 2px;
+        border-bottom: 1px solid #000;
+      }
+
+      .toggle-btn.on {
+        background: var(--sunken);
+        color: var(--hot);
+        border-color: var(--hot);
+        border-bottom: 3px solid var(--hot-dim);
+      }
+
+      .toggle-btn .tog-indicator {
+        width: 32px;
+        height: 14px;
+        background: var(--sunken);
+        border: 1px solid var(--rim);
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .toggle-btn .tog-indicator::after {
+        content: "";
+        position: absolute;
+        width: 12px;
+        height: 10px;
+        background: var(--muted);
+        top: 1px;
+        left: 1px;
+        transition: all 0.1s;
+      }
+
+      .toggle-btn.on .tog-indicator::after {
+        left: 17px;
+        background: var(--hot);
+        box-shadow: 0 0 4px var(--hot);
+      }
+
+      .toggle-btn input[type="checkbox"] {
+        display: none;
+      }
+
+      .cam-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--rim);
+        overflow: hidden;
+        margin-top: 8px;
+      }
+
+      .cam-btn {
+        background: var(--raised);
+        border: none;
+        border-right: 1px solid var(--rim);
+        color: var(--muted);
+        padding: 9px 6px;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 1px;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.1s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+      }
+
+      .cam-btn:last-child {
+        border-right: none;
+      }
+
+      .cam-btn.active {
+        background: var(--hot);
+        color: #000;
+        font-weight: bold;
+      }
+
+      .cam-btn input {
+        display: none;
+      }
+
+      .export-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .btn-export {
+        background: var(--raised);
+        border: 1px solid var(--rim);
+        border-bottom: 3px solid #000;
+        border-right: 2px solid #000;
+        color: var(--white);
+        padding: 10px 8px;
+        font-family: "Share Tech Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 1px;
+        cursor: pointer;
+        text-transform: uppercase;
+        text-align: center;
+        transition: all 0.05s;
+        position: relative;
+        top: 0;
+        line-height: 1.4;
+      }
+
+      .btn-export:active {
+        top: 2px;
+        border-bottom: 1px solid #000;
+      }
+
+      .btn-export:hover {
+        border-color: var(--hot);
+        color: var(--hot);
+      }
+
+      .btn-export .ico {
+        display: block;
+        font-size: 1rem;
+        margin-bottom: 3px;
+      }
+
+      .viewport {
+        background: #030303;
+        border: 2px solid var(--rim);
+        border-bottom: 4px solid var(--chrome);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .viewport-corner {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border-color: var(--hot);
+        border-style: solid;
+        opacity: 0.5;
+        z-index: 2;
+      }
+      .vc-tl {
+        top: 8px;
+        left: 8px;
+        border-width: 2px 0 0 2px;
+      }
+      .vc-tr {
+        top: 8px;
+        right: 8px;
+        border-width: 2px 2px 0 0;
+      }
+      .vc-bl {
+        bottom: 8px;
+        left: 8px;
+        border-width: 0 0 2px 2px;
+      }
+      .vc-br {
+        bottom: 8px;
+        right: 8px;
+        border-width: 0 2px 2px 0;
+      }
+
+      #ascii-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: auto;
+        padding: 15px;
+      }
+
+      pre {
+        font-family: "Share Tech Mono", "Courier New", monospace;
+        font-size: 8px;
+        line-height: 5px;
+        letter-spacing: 0px;
+        margin: 0;
+        white-space: pre;
+        user-select: all;
+        color: var(--green);
+        transform-origin: center;
+      }
+
+      .mirror {
+        transform: scaleX(-1);
+      }
+
+      #video,
+      #canvas-mem {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .splash-screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: rgba(3, 3, 3, 0.96);
+        z-index: 5;
+      }
+
+      .splash-inner {
+        border: 2px solid var(--rim);
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        text-align: center;
+        position: relative;
+      }
+
+      .splash-inner::before,
+      .splash-inner::after {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-color: var(--hot);
+        border-style: solid;
+        opacity: 0.7;
+      }
+      .splash-inner::before {
+        top: -2px;
+        left: -2px;
+        border-width: 3px 0 0 3px;
+      }
+      .splash-inner::after {
+        bottom: -2px;
+        right: -2px;
+        border-width: 0 3px 3px 0;
+      }
+
+      .splash-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.1rem;
+        letter-spacing: 5px;
+        color: var(--hot);
+      }
+
+      .splash-text {
+        font-size: 0.72rem;
+        color: var(--muted);
+        letter-spacing: 1px;
+        max-width: 320px;
+        line-height: 1.7;
+      }
+
+      .toast {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+        background: var(--panel);
+        border: 1px solid var(--hot);
+        border-left: 4px solid var(--hot);
+        color: var(--hot);
+        padding: 10px 18px;
+        font-size: 0.68rem;
+        letter-spacing: 1.5px;
+        font-family: "Share Tech Mono", monospace;
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 10;
+        text-transform: uppercase;
+      }
+
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--rim);
+        margin: 4px 0 10px;
+      }
+
+      .cam-label {
+        font-size: 0.62rem;
+        letter-spacing: 2px;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 0;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="machine-header">
-        <div class="header-title">ASCII MATRIX ENGINE</div>
-        <div class="header-badge">
-            <div class="led" id="led-stream"></div>
-            <span class="header-label">STREAM</span>
-            <div class="led warn" style="margin-left:8px;"></div>
-            <span class="header-label">PWR</span>
-        </div>
+      <div class="header-title">ASCII MATRIX ENGINE</div>
+      <a href="https://hackclub.com/"
+        ><img
+          style="
+            position: bottom;
+            left: 710px;
+            border: 800;
+            width: 110px;
+            z-index: 800;
+          "
+          src="https://assets.hackclub.com/banners/2026.svg"
+          alt="Hack Club"
+      /></a>
+      <div class="header-badge">
+        <div class="led" id="led-stream"></div>
+        <span class="header-label">STREAM</span>
+        <div class="led warn" style="margin-left: 8px"></div>
+        <span class="header-label">PWR</span>
+      </div>
     </div>
 
     <div class="dashboard">
-        <div class="sidebar">
+      <div class="sidebar">
+        <button class="btn-main" id="master-toggle">▶ INIT STREAM</button>
 
-            <button class="btn-main" id="master-toggle">▶ INIT STREAM</button>
-
-            <div class="panel-block">
-                <div class="panel-label">ENGINE CONFIG</div>
-                <div class="panel-inner">
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span class="slider-name">Resolution Width</span>
-                            <span class="slider-val" id="val-width">120 cols</span>
-                        </div>
-                        <input type="range" id="control-width" min="40" max="240" step="5" value="120">
-                    </div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span class="slider-name">Frame Rate</span>
-                            <span class="slider-val" id="val-fps">30 Hz</span>
-                        </div>
-                        <input type="range" id="control-fps" min="5" max="60" step="1" value="30">
-                    </div>
-                    <div class="slider-row">
-                        <div class="slider-header">
-                            <span class="slider-name">Luminance Gain</span>
-                            <span class="slider-val" id="val-bright">0</span>
-                        </div>
-                        <input type="range" id="control-bright" min="-100" max="100" step="1" value="0">
-                    </div>
-                    <div class="slider-row" style="margin-bottom:0;">
-                        <div class="slider-header">
-                            <span class="slider-name">Contrast</span>
-                            <span class="slider-val" id="val-contrast">0</span>
-                        </div>
-                        <input type="range" id="control-contrast" min="-100" max="100" step="1" value="0">
-                    </div>
-                </div>
+        <div class="panel-block">
+          <div class="panel-label">ENGINE CONFIG</div>
+          <div class="panel-inner">
+            <div class="slider-row">
+              <div class="slider-header">
+                <span class="slider-name">Resolution Width</span>
+                <span class="slider-val" id="val-width">120 cols</span>
+              </div>
+              <input
+                type="range"
+                id="control-width"
+                min="40"
+                max="240"
+                step="5"
+                value="120" />
             </div>
-
-            <div class="panel-block">
-                <div class="panel-label">GLYPH MATRIX</div>
-                <div class="panel-inner">
-                    <div class="field-group">
-                        <span class="field-label">Character Set</span>
-                        <div class="select-wrap">
-                            <select id="control-charset">
-                                <option value="detailed">DETAILED — $@B%8&WM#*oahk…</option>
-                                <option value="standard">STANDARD — @#S%?*+;:,.</option>
-                                <option value="blocks">BLOCKS — █▓▒░</option>
-                                <option value="binary">BINARY — 10</option>
-                                <option value="braille">BRAILLE — ⣿⣾⣶⣤⡄</option>
-                                <option value="custom">CUSTOM SET</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field-group" id="custom-charset-wrapper" style="display:none;">
-                        <span class="field-label">Custom Characters</span>
-                        <input type="text" id="control-custom-char" value="XYZabc123. ">
-                    </div>
-                </div>
+            <div class="slider-row">
+              <div class="slider-header">
+                <span class="slider-name">Frame Rate</span>
+                <span class="slider-val" id="val-fps">30 Hz</span>
+              </div>
+              <input
+                type="range"
+                id="control-fps"
+                min="5"
+                max="60"
+                step="1"
+                value="30" />
             </div>
-
-            <div class="panel-block">
-                <div class="panel-label">KERNEL FX</div>
-                <div class="panel-inner">
-                    <button class="toggle-btn" id="togbtn-color">
-                        <span>True-Color Overlay</span>
-                        <div class="tog-indicator"></div>
-                        <input type="checkbox" id="opt-color">
-                    </button>
-                    <button class="toggle-btn on" id="togbtn-mirror">
-                        <span>Mirror Transpose</span>
-                        <div class="tog-indicator"></div>
-                        <input type="checkbox" id="opt-mirror" checked>
-                    </button>
-                    <button class="toggle-btn" id="togbtn-invert">
-                        <span>Invert Engine</span>
-                        <div class="tog-indicator"></div>
-                        <input type="checkbox" id="opt-invert">
-                    </button>
-                    <button class="toggle-btn" id="togbtn-edge">
-                        <span>Sobel Edge Detect</span>
-                        <div class="tog-indicator"></div>
-                        <input type="checkbox" id="opt-edge">
-                    </button>
-                    <div class="divider"></div>
-                    <span class="cam-label">Camera Facing</span>
-                    <div class="cam-group">
-                        <label class="cam-btn active" id="lbl-facing-user">
-                            <input type="radio" name="cam-facing" value="user" checked>
-                            ◈ FRONT
-                        </label>
-                        <label class="cam-btn" id="lbl-facing-env">
-                            <input type="radio" name="cam-facing" value="environment">
-                            ◉ REAR
-                        </label>
-                    </div>
-                </div>
+            <div class="slider-row">
+              <div class="slider-header">
+                <span class="slider-name">Luminance Gain</span>
+                <span class="slider-val" id="val-bright">0</span>
+              </div>
+              <input
+                type="range"
+                id="control-bright"
+                min="-100"
+                max="100"
+                step="1"
+                value="0" />
             </div>
-
-            <div class="panel-block">
-                <div class="panel-label">EXPORT</div>
-                <div class="panel-inner">
-                    <div class="export-grid">
-                        <button class="btn-export" id="btn-snap-text">
-                            <span class="ico">⎘</span>COPY TEXT
-                        </button>
-                        <button class="btn-export" id="btn-snap-png">
-                            <span class="ico">↓</span>SAVE PNG
-                        </button>
-                    </div>
-                </div>
+            <div class="slider-row" style="margin-bottom: 0">
+              <div class="slider-header">
+                <span class="slider-name">Contrast</span>
+                <span class="slider-val" id="val-contrast">0</span>
+              </div>
+              <input
+                type="range"
+                id="control-contrast"
+                min="-100"
+                max="100"
+                step="1"
+                value="0" />
             </div>
-
+          </div>
         </div>
 
-        <div class="viewport">
-            <div class="viewport-corner vc-tl"></div>
-            <div class="viewport-corner vc-tr"></div>
-            <div class="viewport-corner vc-bl"></div>
-            <div class="viewport-corner vc-br"></div>
-
-            <div class="splash-screen" id="splash">
-                <div class="splash-inner">
-                    <div class="splash-title">MEDIA ACCESS REQUIRED</div>
-                    <div class="splash-text">Camera permissions must be granted before the optical pipeline can be initialized.</div>
-                    <button class="btn-main" id="splash-trigger-btn" style="min-width:220px;">▶ INIT CAMERA</button>
-                </div>
+        <div class="panel-block">
+          <div class="panel-label">GLYPH MATRIX</div>
+          <div class="panel-inner">
+            <div class="field-group">
+              <span class="field-label">Character Set</span>
+              <div class="select-wrap">
+                <select id="control-charset">
+                  <option value="detailed">DETAILED — $@B%8&WM#*oahk…</option>
+                  <option value="standard">STANDARD — @#S%?*+;:,.</option>
+                  <option value="blocks">BLOCKS — █▓▒░</option>
+                  <option value="binary">BINARY — 10</option>
+                  <option value="braille">BRAILLE — ⣿⣾⣶⣤⡄</option>
+                  <option value="custom">CUSTOM SET</option>
+                </select>
+              </div>
             </div>
-
-            <div id="ascii-container">
-                <pre id="ascii-output"></pre>
+            <div
+              class="field-group"
+              id="custom-charset-wrapper"
+              style="display: none">
+              <span class="field-label">Custom Characters</span>
+              <input type="text" id="control-custom-char" value="XYZabc123. " />
             </div>
-
-            <div class="toast" id="toast-notify">ACK</div>
+          </div>
         </div>
+
+        <div class="panel-block">
+          <div class="panel-label">KERNEL FX</div>
+          <div class="panel-inner">
+            <button class="toggle-btn" id="togbtn-color">
+              <span>True-Color Overlay</span>
+              <div class="tog-indicator"></div>
+              <input type="checkbox" id="opt-color" />
+            </button>
+            <button class="toggle-btn on" id="togbtn-mirror">
+              <span>Mirror Transpose</span>
+              <div class="tog-indicator"></div>
+              <input type="checkbox" id="opt-mirror" checked />
+            </button>
+            <button class="toggle-btn" id="togbtn-invert">
+              <span>Invert Engine</span>
+              <div class="tog-indicator"></div>
+              <input type="checkbox" id="opt-invert" />
+            </button>
+            <button class="toggle-btn" id="togbtn-edge">
+              <span>Sobel Edge Detect</span>
+              <div class="tog-indicator"></div>
+              <input type="checkbox" id="opt-edge" />
+            </button>
+            <div class="divider"></div>
+            <span class="cam-label">Camera Facing</span>
+            <div class="cam-group">
+              <label class="cam-btn active" id="lbl-facing-user">
+                <input type="radio" name="cam-facing" value="user" checked />
+                ◈ FRONT
+              </label>
+              <label class="cam-btn" id="lbl-facing-env">
+                <input type="radio" name="cam-facing" value="environment" />
+                ◉ REAR
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <div class="panel-label">EXPORT</div>
+          <div class="panel-inner">
+            <div class="export-grid">
+              <button class="btn-export" id="btn-snap-text">
+                <span class="ico">⎘</span>COPY TEXT
+              </button>
+              <button class="btn-export" id="btn-snap-png">
+                <span class="ico">↓</span>SAVE PNG
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="viewport">
+        <div class="viewport-corner vc-tl"></div>
+        <div class="viewport-corner vc-tr"></div>
+        <div class="viewport-corner vc-bl"></div>
+        <div class="viewport-corner vc-br"></div>
+
+        <div class="splash-screen" id="splash">
+          <div class="splash-inner">
+            <div class="splash-title">MEDIA ACCESS REQUIRED</div>
+            <div class="splash-text">
+              Camera permissions must be granted before the optical pipeline can
+              be initialized.
+            </div>
+            <button
+              class="btn-main"
+              id="splash-trigger-btn"
+              style="min-width: 220px">
+              ▶ INIT CAMERA
+            </button>
+          </div>
+        </div>
+
+        <div id="ascii-container">
+          <pre id="ascii-output"></pre>
+        </div>
+
+        <div class="toast" id="toast-notify">ACK</div>
+      </div>
     </div>
 
     <video id="video" autoplay playsinline width="640" height="480"></video>
     <canvas id="canvas-mem" width="640" height="480"></canvas>
 
     <script>
-        const state = {
-            isStreaming: false,
-            fpsInterval: 100 / 30,
-            then: performance.now(),
-            animationId: null,
-            facingMode: 'user',
-            streamReference: null
-        };
+      const state = {
+        isStreaming: false,
+        fpsInterval: 1000 / 30,
+        then: performance.now(),
+        animationId: null,
+        facingMode: "user",
+        streamReference: null,
+      };
 
-        const nodes = {
-            video: document.getElementById('video'),
-            canvas: document.getElementById('canvas-mem'),
-            ctx: document.getElementById('canvas-mem').getContext('2d', { willReadFrequently: true, alpha: false }),
-            output: document.getElementById('ascii-output'),
-            masterBtn: document.getElementById('master-toggle'),
-            splashBtn: document.getElementById('splash-trigger-btn'),
-            splash: document.getElementById('splash'),
-            toast: document.getElementById('toast-notify'),
-            ledStream: document.getElementById('led-stream'),
-            width: document.getElementById('control-width'),
-            fps: document.getElementById('control-fps'),
-            bright: document.getElementById('control-bright'),
-            contrast: document.getElementById('control-contrast'),
-            charset: document.getElementById('control-charset'),
-            customWrapper: document.getElementById('custom-charset-wrapper'),
-            customInput: document.getElementById('control-custom-char'),
-            optColor: document.getElementById('opt-color'),
-            optMirror: document.getElementById('opt-mirror'),
-            optInvert: document.getElementById('opt-invert'),
-            optEdge: document.getElementById('opt-edge'),
-            lblWidth: document.getElementById('val-width'),
-            lblFps: document.getElementById('val-fps'),
-            lblBright: document.getElementById('val-bright'),
-            lblContrast: document.getElementById('val-contrast')
-        };
+      const nodes = {
+        video: document.getElementById("video"),
+        canvas: document.getElementById("canvas-mem"),
+        ctx: document
+          .getElementById("canvas-mem")
+          .getContext("2d", { willReadFrequently: true, alpha: false }),
+        output: document.getElementById("ascii-output"),
+        masterBtn: document.getElementById("master-toggle"),
+        splashBtn: document.getElementById("splash-trigger-btn"),
+        splash: document.getElementById("splash"),
+        toast: document.getElementById("toast-notify"),
+        ledStream: document.getElementById("led-stream"),
+        width: document.getElementById("control-width"),
+        fps: document.getElementById("control-fps"),
+        bright: document.getElementById("control-bright"),
+        contrast: document.getElementById("control-contrast"),
+        charset: document.getElementById("control-charset"),
+        customWrapper: document.getElementById("custom-charset-wrapper"),
+        customInput: document.getElementById("control-custom-char"),
+        optColor: document.getElementById("opt-color"),
+        optMirror: document.getElementById("opt-mirror"),
+        optInvert: document.getElementById("opt-invert"),
+        optEdge: document.getElementById("opt-edge"),
+        lblWidth: document.getElementById("val-width"),
+        lblFps: document.getElementById("val-fps"),
+        lblBright: document.getElementById("val-bright"),
+        lblContrast: document.getElementById("val-contrast"),
+      };
 
-        function syncLabels() {
-            nodes.lblWidth.textContent = `${nodes.width.value} cols`;
-            nodes.lblFps.textContent = `${nodes.fps.value} Hz`;
-            nodes.lblBright.textContent = nodes.bright.value >= 0 ? `+${nodes.bright.value}` : nodes.bright.value;
-            nodes.lblContrast.textContent = nodes.contrast.value >= 0 ? `+${nodes.contrast.value}` : nodes.contrast.value;
-            state.fpsInterval = 1000 / parseInt(nodes.fps.value);
-        }
+      function syncLabels() {
+        nodes.lblWidth.textContent = `${nodes.width.value} cols`;
+        nodes.lblFps.textContent = `${nodes.fps.value} Hz`;
+        nodes.lblBright.textContent =
+          nodes.bright.value >= 0
+            ? `+${nodes.bright.value}`
+            : nodes.bright.value;
+        nodes.lblContrast.textContent =
+          nodes.contrast.value >= 0
+            ? `+${nodes.contrast.value}`
+            : nodes.contrast.value;
+        state.fpsInterval = 1000 / parseInt(nodes.fps.value);
+      }
 
-        [nodes.width, nodes.fps, nodes.bright, nodes.contrast].forEach(el =>> el.addEventListener('input', syncLabels));
+      [nodes.width, nodes.fps, nodes.bright, nodes.contrast].forEach((el) =>
+        el.addEventListener("input", syncLabels)
+      );
 
-        nodes.charset.addEventListener('change', () => {
-            nodes.customWrapper.style.display = (nodes.charset.value === 'custom')? 'flex' : 'none' ;
-            nodes.customWrapper.style.flexDirection = 'column';
+      nodes.charset.addEventListener("change", () => {
+        nodes.customWrapper.style.display =
+          nodes.charset.value === "custom" ? "flex" : "none";
+        nodes.customWrapper.style.flexDirection = "column";
+      });
+
+      function setupToggleBtn(btnId, checkboxId) {
+        const btn = document.getElementById(btnId);
+        const cb = document.getElementById(checkboxId);
+        btn.addEventListener("click", () => {
+          cb.checked = !cb.checked;
+          btn.classList.toggle("on", cb.checked);
+          if (checkboxId === "opt-mirror") {
+            nodes.output.classList.toggle("mirror", cb.checked);
+          }
         });
+      }
 
-        function setupToggleBtn(btnId, checkboxId) {
-            const btn = document.getElementById(btnId);
-            const cb = document.getElementById(checkboxId);
-            btn.addEventListener('click', () => {
-                cb.checked = !cb.checked;
-                btn.classList.toggle('on', cb.checked);
-                if (checkboxId === 'opt-mirror') {
-                    nodes.output.classList.toggle('mirror', cb.checked);
-                }
-            });
-        }
+      setupToggleBtn("togbtn-color", "opt-color");
+      setupToggleBtn("togbtn-mirror", "opt-mirror");
+      setupToggleBtn("togbtn-invert", "opt-invert");
+      setupToggleBtn("togbtn-edge", "opt-edge");
 
-        setupToggleBtn('togbtn-color', 'opt-color');
-        setupToggleBtn('togbtn-mirror', 'opt-mirror');
-        setupToggleBtn('togbtn-invert', 'opt-invert');
-        setupToggleBtn('togbtn-edge', 'opt-edge');
-
-        document.querySelectorAll('input[name="cam-facing"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                state.facingMode = e.target.value;
-                document.getElementById('lbl-facing-user').classList.toggle('active', e.target.value === 'user');
-                document.getElementById('lbl-facing-env').classList.toggle('active', e.target.value === 'environment');
-                if (state.isStreaming) restarPipeline();
-            });
+      document.querySelectorAll('input[name="cam-facing"]').forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          state.facingMode = e.target.value;
+          document
+            .getElementById("lbl-facing-user")
+            .classList.toggle("active", e.target.value === "user");
+          document
+            .getElementById("lbl-facing-env")
+            .classList.toggle("active", e.target.value === "environment");
+          if (state.isStreaming) restartPipeline();
         });
+      });
 
-        document.querySelectorAll('.cam-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const radio = btn.querySelector('input[type="radio"]');
-                if (radio) radio.checked = true;
-            });
+      document.querySelectorAll(".cam-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const radio = btn.querySelector('input[type="radio"]');
+          if (radio) radio.checked = true;
         });
+      });
 
-        nodes.masterBtn.addEventListener('click' , togglePipeline);
-        nodes.splashBtn.addEventListener('click' , togglePipeline);
+      nodes.masterBtn.addEventListener("click", togglePipeline);
+      nodes.splashBtn.addEventListener("click", togglePipeline);
 
-        function toast(msg) {
-            nodes.toast.textContent = `SYS // ${msg.toUpperCase()}`;
-            nodes.toast.classList.add('show');
-            setTimeout(() => nodes.toast.classList.remove('show'), 3000);
+      function toast(msg) {
+        nodes.toast.textContent = `SYS // ${msg.toUpperCase()}`;
+        nodes.toast.classList.add("show");
+        setTimeout(() => nodes.toast.classList.remove("show"), 3000);
+      }
+
+      function togglePipeline() {
+        state.isStreaming ? stopPipeline() : startPipeline();
+      }
+
+      async function startPipeline() {
+        syncLabels();
+        try {
+          if (state.streamReference)
+            state.streamReference.getTracks().forEach((t) => t.stop());
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: { ideal: state.facingMode },
+              width: { ideal: 640 },
+              height: { ideal: 480 },
+            },
+          });
+          state.streamReference = stream;
+          nodes.video.srcObject = stream;
+          nodes.video.onloadedmetadata = () => {
+            nodes.video.play().then(() => {
+              state.isStreaming = true;
+              setUIActive();
+              renderLoop();
+            });
+          };
+        } catch (err) {
+          console.error(err);
+          toast("Init failed — check permissions");
+          setUIIdle();
+        }
+      }
+
+      function stopPipeline() {
+        if (state.streamReference) {
+          state.streamReference.getTracks().forEach((t) => t.stop());
+          state.streamReference = null;
+        }
+        if (nodes.video.srcObject) nodes.video.srcObject = null;
+        cancelAnimationFrame(state.animationId);
+        state.isStreaming = false;
+        setUIIdle();
+        nodes.output.innerHTML = "";
+        toast("Stream terminated");
+      }
+
+      async function restartPipeline() {
+        if (state.streamReference)
+          state.streamReference.getTracks().forEach((t) => t.stop());
+        cancelAnimationFrame(state.animationId);
+        await startPipeline();
+      }
+
+      function setUIActive() {
+        nodes.masterBtn.textContent = "■ HALT STREAM";
+        nodes.masterBtn.classList.add("halt");
+        nodes.splash.style.display = "none";
+        nodes.ledStream.classList.add("active");
+      }
+
+      function setUIIdle() {
+        nodes.masterBtn.textContent = "▶ INIT STREAM";
+        nodes.masterBtn.classList.remove("halt");
+        nodes.splash.style.display = "flex";
+        nodes.ledStream.classList.remove("active");
+      }
+
+      function renderLoop() {
+        state.then = performance.now();
+        if (nodes.optMirror.checked) nodes.output.classList.add("mirror");
+        frameLoop();
+      }
+
+      function frameLoop() {
+        if (!state.isStreaming || nodes.video.paused || nodes.video.ended)
+          return;
+        state.animationId = requestAnimationFrame(frameLoop);
+        const now = performance.now();
+        const elapsed = now - state.then;
+        if (elapsed > state.fpsInterval) {
+          state.then = now - (elapsed % state.fpsInterval);
+          processFrame();
+        }
+      }
+
+      function processFrame() {
+        const vw = nodes.video.videoWidth || 640;
+        const vh = nodes.video.videoHeight || 480;
+        const cols = parseInt(nodes.width.value) || 120;
+        const rows = Math.round(cols * (vh / vw) * 0.55) || 60;
+
+        if (nodes.canvas.width !== cols || nodes.canvas.height !== rows) {
+          nodes.canvas.width = cols;
+          nodes.canvas.height = rows;
         }
 
-        function togglePipeline() {
-            state.isStreaming ? stopPipeline() : startPipeline();
-        }
+        nodes.ctx.drawImage(nodes.video, 0, 0, cols, rows);
 
-        async function startPipeline() {
-            syncLabels();
-            try {
-                if ( state.streamReference) state.streamReference.getTracks().forEach(t => t.stop());
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: false,
-                    video: { facingMode: { ideal: state.facingMode }, width: { ideal: 640}, height: { ideal: 480 } }
-                });
-                state.streamReference = stream;
-                nodes.video.srcObject = stream;
-                nodes.video.onloadedmetadata = () => {
-                    nodes.video.play().then(() => {
-                        state.isStreaming = true;
-                        setUIActive();
-                        renderLoop();
-                    });
-                };
-            } catch (err) {
-                console.error(err);
-                toast("Init failed - check permissions");
-                setUIIdle();
+        try {
+          const imgData = nodes.ctx.getImageData(0, 0, cols, rows);
+          const buf = imgData.data;
+          const bright = parseInt(nodes.bright.value);
+          const contrastF =
+            (259 * (parseInt(nodes.contrast.value) + 255)) /
+            (255 * (259 - parseInt(nodes.contrast.value)));
+          const doColor = nodes.optColor.checked;
+          const doInvert = nodes.optInvert.checked;
+          const doEdge = nodes.optEdge.checked;
+
+          let glyphs =
+            nodes.charset.value === "custom"
+              ? nodes.customInput.value
+              : nodes.charset.options[nodes.charset.selectedIndex].text;
+          if (nodes.charset.value === "braille") glyphs = "⣿⣾⣶⣤⡄⡀";
+          if (nodes.charset.value === "detailed")
+            glyphs =
+              "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
+          if (nodes.charset.value === "standard") glyphs = "@#S%?*+;:,.";
+          if (nodes.charset.value === "blocks") glyphs = "█▓▒░ ";
+          if (nodes.charset.value === "binary") glyphs = "10 ";
+          const glen = glyphs.length;
+
+          let sobelBuf = null;
+          if (doEdge) sobelBuf = sobelPass(imgData, cols, rows);
+
+          let html = "";
+          for (let y = 0; y < rows; y++) {
+            let line = "";
+            for (let x = 0; x < cols; x++) {
+              const i = (y * cols + x) * 4;
+              let r = buf[i],
+                g = buf[i + 1],
+                b = buf[i + 2];
+              if (bright !== 0) {
+                r += bright;
+                g += bright;
+                b += bright;
+              }
+              if (contrastF !== 1) {
+                r = contrastF * (r - 128) + 128;
+                g = contrastF * (g - 128) + 128;
+                b = contrastF * (b - 128) + 128;
+              }
+              let lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              if (doInvert) {
+                lum = 255 - lum;
+                r = 255 - r;
+                g = 255 - g;
+                b = 255 - b;
+              }
+              if (doEdge && sobelBuf) lum = sobelBuf[y * cols + x];
+              lum = Math.max(0, Math.min(255, lum));
+              const gi = Math.floor((lum / 255) * (glen - 1));
+              let ch = glyphs[gi] || " ";
+              if (ch === " ") ch = "&nbsp;";
+              else if (ch === "<") ch = "&lt;";
+              else if (ch === ">") ch = "&gt;";
+              else if (ch === "&") ch = "&amp;";
+              if (doColor) {
+                const cr = Math.min(255, Math.max(0, Math.round(r)));
+                const cg = Math.min(255, Math.max(0, Math.round(g)));
+                const cb2 = Math.min(255, Math.max(0, Math.round(b)));
+                line += `<span style="color:rgb(${cr},${cg},${cb2})">${ch}</span>`;
+              } else {
+                line += ch;
+              }
             }
+            html += line + "\n";
+          }
+          nodes.output.innerHTML = html;
+        } catch (e) {
+          console.error(e);
         }
+      }
 
-        function stopPipeline() {
-            if (state.streamReference) { state.streamReference.getTracks().forEach(t => t.stop()); state.streamReference = null; }
-            if (nodes.video.srcObject) nodes.video.srcObject = null;
-            cancelAnimationFrame(state.animationId);
-            state.isStreaming = false;
-            setUIIdle();
-            nodes.output.innerHTML = "";
-            toast("Stream terminated");
+      function sobelPass(imgData, w, h) {
+        const d = imgData.data;
+        const out = new Float32Array(w * h);
+        const gray = new Uint8Array(w * h);
+        for (let i = 0; i < d.length; i += 4) {
+          gray[i / 4] = 0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2];
         }
-        
-        async function restarPipeline() {
-            if (state.streamReference) state.streamReference.getTracks().forEach(t => t.stop());
-            cancelAnimationFrame(state.animationId);
-            await startPipeline();
+        for (let y = 1; y < h - 1; y++) {
+          for (let x = 1; x < w - 1; x++) {
+            const gx =
+              -gray[(y - 1) * w + (x - 1)] +
+              gray[(y - 1) * w + (x + 1)] -
+              2 * gray[y * w + (x - 1)] +
+              2 * gray[y * w + (x + 1)] -
+              gray[(y + 1) * w + (x - 1)] +
+              gray[(y + 1) * w + (x + 1)];
+            const gy =
+              -gray[(y - 1) * w + (x - 1)] -
+              2 * gray[(y - 1) * w + x] -
+              gray[(y - 1) * w + (x + 1)] +
+              gray[(y + 1) * w + (x - 1)] +
+              2 * gray[(y + 1) * w + x] +
+              gray[(y + 1) * w + (x + 1)];
+            out[y * w + x] = Math.sqrt(gx * gx + gy * gy);
+          }
         }
+        return out;
+      }
 
-        function setUIActive() {
-            nodes.masterBtn.textContent = "◼HALT STREAM";
-            nodes.masterBtn.classList.add('halt');
-            nodes.splash.style.display = 'none';
-            nodes.ledStream.classList.add('active')
+      document.getElementById("btn-snap-text").addEventListener("click", () => {
+        if (!state.isStreaming || nodes.output.textContent.trim() === "") {
+          toast("No active stream");
+          return;
         }
+        navigator.clipboard
+          .writeText(nodes.output.innerText)
+          .then(() => toast("Copied to clipboard"))
+          .catch(() => toast("Clipboard error"));
+      });
 
-        function setUIIdle() {
-            nodes.masterBtn.textContent = "▶️ INIT STREAM";
-            nodes.masterBtn.classList.remove('halt');
-            nodes.splash.style.display = 'flex';
-            nodes.ledStream.classList.remove('active');
+      document.getElementById("btn-snap-png").addEventListener("click", () => {
+        if (!state.isStreaming || nodes.output.textContent.trim() === "") {
+          toast("Frame buffer empty");
+          return;
         }
-
-        function renderLoop() {
-            state.then = performance.now();
-            if (nodes.optMirror.checked) nodes.output.classList.add('mirror');
-            frameLoop();
+        const c = document.createElement("canvas");
+        const ctx2 = c.getContext("2d");
+        const styles = window.getComputedStyle(nodes.output);
+        const fs = parseFloat(styles.fontSize) || 8;
+        const lh = parseFloat(styles.lineHeight) || 5;
+        const lines = nodes.output.innerText.split("\n");
+        const maxLen = lines.reduce((m, l) => (l.length > m ? l.length : m), 0);
+        c.width = maxLen * (fs * 0.6);
+        c.height = lines.length * lh + 20;
+        ctx2.fillStyle = "#030303";
+        ctx2.fillRect(0, 0, c.width, c.height);
+        if (nodes.optMirror.checked) {
+          ctx2.translate(c.width, 0);
+          ctx2.scale(-1, 1);
         }
-
-        function frameLoop() {
-            if (!state.isStreaming || nodes.video.paused || nodes.video.ended) return;
-            state.animationId = requestAnimationFrame(frameLoop);
-            const now = performance.now();
-            const elapsed = now - state.then;
-            if (elapsed > state.fpsInterval) {
-                state.then = now - (elapsed % state.fpsInterval);
-                processFrame(); 
-            }
-        }
-
-        function processFrame() {
-            const vw = nodes.video.videoWidth || 640;
-            const vh = nodes.video.videoHeight || 480;
-            const cols = parseInt(nodes.width.value) || 120;
-            const rows = Math.round(cols * (vh / vw) * 0.55) || 60;
-
-            if (nodes.canvas.width !== cols || nodes.canvas.height !== rows) {
-                nodes.canvas.width = cols;
-                nodes.canvas.height = rows;
-            }
-
-            nodes.ctx.drawImage(nodes.video, 0, 0, cols, rows);
-
-            try {
-                const imgData = nodes.ctx.getImageData(0, 0, cols, rows);
-                const buf = imgData.data;
-                const bright = parseInt(nodes.bright.value);
-                const contrastF = (259 * (parseInt(nodes.contrast.value) + 255)) / (255 * (259 - parseInt(nodes.contrast.value)));
-                const doColor = nodes.optColor.checked;
-                const doInvert = nodes.optInvert.checked;
-                const doEdge = nodes.optEdge.checked;
-
-                let glyphs = nodes.charset.value === 'custom' ? nodes.customInput.value : nodes.charset.options[nodes.charset.selectedIndex].text;
-                if (nodes.charset.value === 'braille') glyphs = "⣿⣾⣶⣤⡄";
-                if (nodes.charset.value === 'detailed') glyphs = '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ';
-                if (nodes.charset.value === 'standard') glyphs = '@#S%?*+;:,.';
-                if (nodes.charset.value === 'blocks') glyphs = '█▓▒░';
-                if (nodes.charset.value === 'binary') glyphs = '10';
-                const glen = glyphs.length;
-                
-                let sobelBuf = null;
-                if (doEdge) sobelBuf = sobelPass(imgData, cols, rows);
-
-                let html = "";
-                for (let y = 0; y < rows; y++) {
-                    let line = "";
-                    for (let x = 0; x < cols; x++) {
-                        const i = (y * cols + x) * 4;
-                        let r = buf[i], g = buf[i+1], b = buf[i+2];
-                        if (bright !== 0) { r += bright; g += bright; b += bright; }
-                        if (contrastF !== 1) {
-                            r = contrastF * (r - 128) + 128;
-                            g = contrastF * (g - 128) + 128;
-                            b = contrastF * (b - 128) + 128;
-                        }
-                        let lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-                        if (doInvert) { lum = 255 - lum; r = 255-r; g = 255-g; b = 255-b; }
-                        if (doEdge && sobelBuf) lum = sobelBuf[y * cols + x];
-                        lum = Math.max(0, Math.min(255, lum));
-                        const gi = Math.floor((lum / 255) * (glen - 1));
-                        let ch = glyphs[gi] || ' ';
-                        if (ch === ' ') ch = '&nbsp;';
-                        else if (ch === '<') ch = '&lt;';
-                        else if (ch === '>') ch = '&gt;';
-                        else if (ch === '&') ch = '&amp;';
-                        if (doColor) {
-                            const cr = Math.min(255,Math.max(0,Math.round(r)));
-                            const cg = Math.min(255,Math.max(0,Math.round(g)));
-                            const cb2 = Math.min(255,Math.max(0,Math.round(b)));
-                            line += `<span style="color:rgb(${cr},${cg},${cb2})">${ch}</span>`;
-                        } else {
-                            line += ch;
-                        }
-                    }
-                    html += line + "\n";
-                }
-                nodes.output.innerHTML = html;
-            } catch(e) {
-                console.error(e);
-            }
-        }
-
+        ctx2.font = `${fs}px 'Courier New', monospace`;
+        ctx2.textBaseline = "top";
+        ctx2.fillStyle = nodes.optColor.checked ? "#e8ff00" : "#00ff88";
+        lines.forEach((l, i) => ctx2.fillText(l, 10, 10 + i * lh));
+        const a = document.createElement("a");
+        a.download = `ASCII_${Date.now()}.png`;
+        a.href = c.toDataURL("image/png");
+        a.click();
+        toast("PNG exported");
+      });
     </script>
+  </body>
+</html>
