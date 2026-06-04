@@ -174,14 +174,8 @@
         border: 1px solid #000;
         border-radius: 50%;
       }
-      .panel-block::before {
-        top: 5px;
-        left: 5px;
-      }
-      .panel-block::after {
-        top: 5px;
-        right: 5px;
-      }
+      .panel-block::before { top: 5px; left: 5px;}
+      .panel-block::after { top: 5px; right: 5px;}
 
       .panel-inner {
         padding: 28px 14px 14px;
@@ -417,9 +411,7 @@
         box-shadow: 0 0 4px var(--hot);
       }
 
-      .toggle-btn input[type="checkbox"] {
-        display: none;
-      }
+    .toggle-btn input[type="checked"] { display: none; }
 
       .cam-group {
         display: grid;
@@ -448,9 +440,7 @@
         gap: 5px;
       }
 
-      .cam-btn:last-child {
-        border-right: none;
-      }
+      .cam-btn:last-child { border-right: none; }
 
       .cam-btn.active {
         background: var(--hot);
@@ -458,10 +448,8 @@
         font-weight: bold;
       }
 
-      .cam-btn input {
-        display: none;
-      }
-
+     .cam-btn input { display: none;}
+     
       .export-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
